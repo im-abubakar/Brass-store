@@ -1,89 +1,44 @@
-import { Fragment, useRef, useState, useContext } from "react";
+import { Fragment, useContext, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import UploadImage from "./UploadImage";
 import AuthContext from "../AuthContext";
 
-export default function AddStore() {
+const AddCustomer = ({ addCustomerModalSetting, handlePageUpdate }) => {
   const authContext = useContext(AuthContext);
-  const [form, setForm] = useState({
-    userId: authContext.user, // Ensure this contains the correct user ID
+  const [customer, setCustomer] = useState({
+    userId: authContext.user,
     name: "",
-    category: "",
-    address: "",
-    city: "",
-    image: "",
+    phoneNumber: "",
+    date: "",
   });
-  const [imagePreview, setImagePreview] = useState(null);
   const [open, setOpen] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const cancelButtonRef = useRef(null);
 
-  const handleInputChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleInputChange = (key, value) => {
+    setCustomer({ ...customer, [key]: value });
   };
-
-  const addStore = async () => {
-    if (!form.name || !form.category || !form.city || !form.address) {
-      alert("Please fill out all required fields");
-      return;
-    }
-
-    setIsSubmitting(true);
+  const addCustomer = async () => {
     try {
-      const response = await fetch("http://localhost:4000/api/store/add", {
+      const response = await fetch("http://localhost:4000/api/customer/add", {
         method: "POST",
         headers: {
           "Content-type": "application/json",
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(customer),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to add store");
+  
+      if (response.ok) {
+        alert("Customer ADDED");
+        handlePageUpdate();
+        addCustomerModalSetting();
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to add customer:", errorData.message);
       }
-
-      // const result = await response.json();
-
-      alert("STORE ADDED");
-      setOpen(false);
     } catch (err) {
-      console.error("Error adding store:", err);
-      alert("An error occurred while adding the store");
-    } finally {
-      setIsSubmitting(false);
+      console.error("Error adding customer:", err);
     }
   };
-
-  // Uploading image to Cloudinary
-  const uploadImage = async (image) => {
-    const data = new FormData();
-    data.append("file", image);
-    data.append("upload_preset", "inventoryapp");
-
-    try {
-      const response = await fetch(
-        "https://api.cloudinary.com/v1_1/ddhayhptm/image/upload",
-        {
-          method: "POST",
-          body: data,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to upload image");
-      }
-
-      const result = await response.json();
-      setForm({ ...form, image: result.url });
-      setImagePreview(result.url);
-      alert("Store Image Successfully Uploaded");
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      alert("An error occurred while uploading the image");
-    }
-  };
-
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
@@ -124,12 +79,12 @@ export default function AddStore() {
                         aria-hidden="true"
                       />
                     </div>
-                    <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left ">
+                    <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                       <Dialog.Title
                         as="h3"
-                        className="text-lg font-semibold leading-6 text-gray-900 "
+                        className="text-lg font-semibold leading-6 text-gray-900"
                       >
-                        Store Information
+                        Add Customer
                       </Dialog.Title>
                       <form action="#">
                         <div className="grid gap-4 mb-4 sm:grid-cols-2">
@@ -138,86 +93,59 @@ export default function AddStore() {
                               htmlFor="name"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
-                              Name
+                              Customer Name
                             </label>
                             <input
                               type="text"
                               name="name"
                               id="name"
-                              value={form.name}
-                              onChange={handleInputChange}
+                              value={customer.name}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                              placeholder="Enter Store Name"
+                              placeholder="Enter customer name"
                             />
                           </div>
                           <div>
                             <label
-                              htmlFor="city"
+                              htmlFor="phoneNumber"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
-                              City
+                              Phone Number
                             </label>
                             <input
                               type="text"
-                              name="city"
-                              id="city"
-                              value={form.city}
-                              onChange={handleInputChange}
+                              name="phoneNumber"
+                              id="phoneNumber"
+                              value={customer.phoneNumber}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                              placeholder="Enter City Name"
+                              placeholder="Enter phone number"
                             />
                           </div>
-                          <div>
-                            <label
-                              htmlFor="category"
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                            >
-                              Category
-                            </label>
-                            <select
-                              id="category"
-                              name="category"
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                              value={form.category}
-                              onChange={handleInputChange}
-                            >
-                              <option value="Electronics">Electronics</option>
-                              <option value="Groceries">Groceries</option>
-                              <option value="Wholesale">Wholesale</option>
-                              <option value="SuperMart">SuperMart</option>
-                              <option value="Phones">Phones</option>
-                            </select>
-                          </div>
+
                           <div className="sm:col-span-2">
                             <label
-                              htmlFor="address"
+                              htmlFor="date"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
-                              Address
+                              Date
                             </label>
-                            <textarea
-                              id="address"
-                              rows="5"
-                              name="address"
+                            <input
+                              type="date"
+                              id="date"
+                              name="date"
                               className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                              placeholder="Write an address..."
-                              value={form.address}
-                              onChange={handleInputChange}
-                            ></textarea>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <UploadImage uploadImage={uploadImage} />
-                        </div>
-                        {imagePreview && (
-                          <div className="mt-2">
-                            <img
-                              src={imagePreview}
-                              alt="Uploaded store"
-                              className="w-full h-auto rounded"
+                              value={customer.date}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
                             />
                           </div>
-                        )}
+                        </div>
                       </form>
                     </div>
                   </div>
@@ -226,15 +154,14 @@ export default function AddStore() {
                   <button
                     type="button"
                     className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                    onClick={addStore}
-                    disabled={isSubmitting}
+                    onClick={addCustomer}
                   >
-                    {isSubmitting ? "Adding..." : "Add Store"}
+                    Add Customer
                   </button>
                   <button
                     type="button"
                     className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                    onClick={() => setOpen(false)}
+                    onClick={() => addCustomerModalSetting()}
                     ref={cancelButtonRef}
                   >
                     Cancel
@@ -247,4 +174,6 @@ export default function AddStore() {
       </Dialog>
     </Transition.Root>
   );
-}
+};
+
+export default AddCustomer;

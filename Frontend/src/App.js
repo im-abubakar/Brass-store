@@ -10,9 +10,7 @@ import NoPageFound from "./pages/NoPageFound";
 import AuthContext from "./AuthContext";
 import ProtectedWrapper from "./ProtectedWrapper";
 import { useEffect, useState } from "react";
-import Store from "./pages/Store";
-import Sales from "./pages/Sales";
-import PurchaseDetails from "./pages/PurchaseDetails";
+import CustomerPortfolio from "./pages/CustomerPortfolio";
 
 const App = () => {
   const [user, setUser] = useState("");
@@ -73,9 +71,9 @@ const App = () => {
           >
             <Route index element={<Dashboard />} />
             <Route path="/inventory" element={<Inventory />} />
-            <Route path="/purchase-details" element={<PurchaseDetails />} />
-            <Route path="/sales" element={<Sales />} />
-            <Route path="/manage-store" element={<Store />} />
+             <Route path="/CustomerPortfolio" element={<CustomerPortfolio />} />
+            {/* <Route path="/sales" element={<Sales />} />
+            <Route path="/manage-store" element={<Store />} />  */}
           </Route>
           <Route path="*" element={<NoPageFound />} />
         </Routes>

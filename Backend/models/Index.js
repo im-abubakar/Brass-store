@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const uri = "mongodb+srv://bakarbro123:RcLQXHccPxXrXGq4@cluster0.iymtagb.mongodb.net/InventoryManagementApp?retryWrites=true&w=majority&appName=Cluster0";
+const uri = "mongodb+srv://bakarbro123:RcLQXHccPxXrXGq4@cluster0.iymtagb.mongodb.net/Brass-store?retryWrites=true&w=majority&appName=Cluster0";
 
 
 
